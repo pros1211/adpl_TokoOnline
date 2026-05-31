@@ -18,6 +18,12 @@ public abstract class Produk {
         this.stok = stok;
         this.jenis = jenis;
     }
+    public void setIdProduk(int id){
+        this.idProduk=id;
+    }
+    public int getIdProduk(){
+    return this.idProduk;
+    }
 
     public int getIdPenjual() {
         return this.idPenjual;
