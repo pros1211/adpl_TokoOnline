@@ -43,7 +43,7 @@ public class MainTUI {
                     System.out.println("Terima kasih telah menggunakan layanan kami. Sampai jumpa!");
                     break;
                 default:
-                    System.out.println("❌ Pilihan tidak valid. Silakan coba lagi.");
+                    System.out.println("Pilihan tidak valid. Silakan coba lagi.");
             }
         }
     }
