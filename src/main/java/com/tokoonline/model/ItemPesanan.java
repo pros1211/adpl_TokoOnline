@@ -5,23 +5,21 @@ public class ItemPesanan {
     int kuantitas;
     Double subtotal;
 
-
-    
     public ItemPesanan(Produk produk, int kuantitas) {
         this.produk = produk;
         this.kuantitas = kuantitas;
-        this.subtotal =produk.getHarga()*kuantitas;
+        this.subtotal = produk.getHarga() * kuantitas;
     }
 
-    public Produk getProduk(){
+    public Produk getProduk() {
         return produk;
     }
-    public int getKuantitas(){
+
+    public int getKuantitas() {
         return kuantitas;
     }
 
-
-    public Double getSubtotal(){
+    public Double getSubtotal() {
         return this.subtotal;
 
     }

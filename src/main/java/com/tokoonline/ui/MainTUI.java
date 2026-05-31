@@ -1,7 +1,9 @@
 package com.tokoonline.ui;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import com.tokoonline.facade.AuthFacade;
@@ -16,11 +18,12 @@ public class MainTUI {
     private AuthFacade autentikasi;
     private ProdukFacade tambahProdukFacade;
     private PesananFacade pesananFacade;
+
     public MainTUI() {
         this.scanner = new Scanner(System.in);
         this.autentikasi = new AuthFacade();
         this.tambahProdukFacade = new ProdukFacade();
-        this.pesananFacade=new PesananFacade();
+        this.pesananFacade = new PesananFacade();
     }
 
     public void run() {
@@ -30,7 +33,7 @@ public class MainTUI {
             System.out.println("   Selamat Datang di Toko Online");
             System.out.println("=======================================");
             System.out.println("1. Masuk sebagai Penjual");
-            System.out.println("2. Masuk sebagai Pembeli (Belum tersedia)");
+            System.out.println("2. Masuk sebagai Pembeli ");
             System.out.println("3. Buat Akun Baru");
             System.out.println("0. Keluar dari Aplikasi");
             String pilihan = scanner.nextLine();
@@ -39,7 +42,7 @@ public class MainTUI {
                     menuLoginPenjual();
                     break;
                 case "2":
-                   menuLoginPembeli();
+                    menuLoginPembeli();
                     break;
                 case "3":
                     menuBuatAkun();
@@ -96,7 +99,18 @@ public class MainTUI {
             }
 
         } else if (peran.equals("2")) {
-            System.out.println("Fitur Registrasi Pembeli belum tersedia.");
+            System.out.print("Masukkan Username baru : ");
+            String newUsername = scanner.nextLine();
+            System.out.print("Masukkan Password baru : ");
+            String newPassword = scanner.nextLine();
+            System.out.print("Masukkan alamat        : ");
+            String alamat = scanner.nextLine();
+            System.out.print("Masukkan nomor telepon : ");
+            String nomorHp = scanner.nextLine();
+            boolean hasilRegister = autentikasi.registerPelanggan(newUsername, newPassword, alamat, nomorHp);
+            if (hasilRegister) {
+                System.out.println("Pembuatan akun pembeli berhasil! Selamat berbelanja, " + newUsername);
+            }
         } else {
             System.out.println("menu tidak dikenali. Batal membuat akun.");
         }
@@ -235,11 +249,9 @@ public class MainTUI {
 
     }
 
-  
     private void dashboardPenjual() {
         boolean diDashboard = true;
 
-        // Ambil ID penjual yang sedang login dari AuthFacade
         int idPenjualAktif = autentikasi.getPenjualAktif().getId();
 
         while (diDashboard) {
@@ -260,89 +272,253 @@ public class MainTUI {
             }
         }
     }
-      private void menuLoginPembeli() {
-        System.out.println("\n--- LOGIN PEMBELI / PELANGGAN ---");
-        System.out.print("Username : ");
-        String username = scanner.nextLine();
-        System.out.print("Password : ");
-        String password = scanner.nextLine();
 
-        System.out.println("Mencocokkan data pembeli ke database...");
-        // Memanggil fungsi login khusus pelanggan di AuthFacade
-        boolean berhasil = autentikasi.loginPelanggan(username, password);
+    private void menuLoginPembeli() {
+        System.out.println("\n--- Selamat datang kembali Pelanggan! ---");
+        System.out.println("pilih metode login: ");
+        System.out.println("1. Menggunakan username");
+        System.out.println("2. Menggunakan nomor HP");
+        System.out.print("pilihan (1/2): ");
+        String metode = scanner.nextLine();
+        if (metode.equals("1")) {
+            System.out.print("Username : ");
+            String username = scanner.nextLine();
+            System.out.print("Password : ");
+            String password = scanner.nextLine();
 
-        if (berhasil) {
-            System.out.println("Login Berhasil! Selamat datang, " + username);
-            dashboardPembeli(); // Buka dashboard jika sukses
-        } else {
-            System.out.println("❌ Login Gagal! Username atau password salah.");
-        }
-    }
-    private void dashboardPembeli() {
-        Pelanggan pelangganaktif=autentikasi.getPelangganAktif();
-    
- System.out.println("\n=======================================");
-        System.out.println("     DASHBOARD UTAMA PEMBELI      ");
-        System.out.println("=======================================");
-        System.out.println("Selamat Datang, " + pelangganaktif.getUsername().toUpperCase());
-    
-   System.out.println("\n--- KATALOG PRODUK REAL-TIME ---");
-        List<Produk> katalogProduk = tambahProdukFacade.ambilSemuaProduk();
+            System.out.println("Mencocokkan data pembeli ke database...");
+            boolean berhasil = autentikasi.loginPelanggan(username, password);
 
-        if (katalogProduk == null || katalogProduk.isEmpty()) {
-            System.out.println("Toko saat ini kosong, belum ada produk yang dijual.");
-            return;
-        }       
-        for (Produk p : katalogProduk) {
-            System.out.println("ID: [" + p.getIdProduk() + "] " + p.getNama() + " | Harga: Rp" + p.getHarga() + " | Stok: " + p.getStok());
-        }
-        System.out.println("=======================================");
+            if (berhasil) {
+                System.out.println("Login Berhasil! Selamat datang, " + username);
+                dashboardPembeli();
+            } else {
 
-        System.out.print("Masukkan ID Produk yang ingin dibeli: ");
-        int idPilihan = Integer.parseInt(scanner.nextLine());
-        System.out.print("Masukkan Jumlah Kuantitas (Qty)     : ");
-        int qty = Integer.parseInt(scanner.nextLine());
+                System.out.println("Login Gagal! Username atau password salah.");
+            }
+        } else if (metode.equals("2")) {
+            System.out.print("nomor telepon : ");
+            String nomorHp = scanner.nextLine();
+            System.out.print("Password      : ");
+            String password = scanner.nextLine();
 
-        Produk produkPilihan = null;
-        for (Produk p : katalogProduk) {
-            if (p.getIdProduk()== idPilihan) {
-                produkPilihan = p;
-                break;
+            System.out.println("Mencocokkan data pembeli ke database...");
+            boolean berhasil = autentikasi.loginPelangganByPhone(nomorHp, password);
+
+            if (berhasil) {
+                System.out.println("Login Berhasil! Selamat datang, " + autentikasi.getPelangganAktif().getUsername());
+                dashboardPembeli();
+            } else {
+                System.out.println("Login Gagal! Username atau password salah.");
             }
         }
+    }
 
-        if (produkPilihan == null) {
-            System.out.println("ID Produk tidak ditemukan. Transaksi dibatalkan.");
+    private void dashboardPembeli() {
+        Pelanggan pelangganaktif = autentikasi.getPelangganAktif();
+        boolean dashboard = true;
+        while (dashboard) {
+
+            System.out.println("\n=======================================");
+            System.out.println("            DASHBOARD PEMBELI      ");
+            System.out.println("=======================================");
+            System.out.println("Selamat Datang, " + pelangganaktif.getUsername().toUpperCase() + "!");
+            System.out.println("Mau Cari Apa Hari ini?");
+            System.out.println("1. Lihat Semua Katalog Produk");
+            System.out.println("2. Cari Produk Berdasarkan Nama Toko");
+            System.out.println("3. Tambah Pesanan");
+            System.out.println("4. Cek Status & Riwayat Pesanan");
+            System.out.println("0. Logout");
+            System.out.print("Pilih (0-4): ");
+            String method = scanner.nextLine();
+
+            List<Produk> katalogProduk = new ArrayList<>();
+            switch (method) {
+                case "1":
+                    katalogProduk = tambahProdukFacade.ambilSemuaProduk();
+
+                    if (katalogProduk == null || katalogProduk.isEmpty()) {
+                        System.out.println("belum ada produk yang dijual.");
+                    } else {
+                        System.out.println("\n--- KATALOG SEMUA PRODUK ---");
+                        for (Produk p : katalogProduk) {
+                            String hargaRupiah = String.format(new Locale("id", "ID"), "%,.0f", p.getHarga());
+                            System.out.println(
+                                    "ID: [" + p.getIdProduk() + "] " + p.getNama() + " | Harga: Rp" + hargaRupiah
+                                            + " | Stok: " + p.getStok());
+                        }
+                        System.out.println("=======================================");
+                        System.out.println("\nmenu:");
+                        System.out.println("1. Tambah Pesanan (Masukkan ke Keranjang)");
+                        System.out.println("0. Kembali ke Dashboard");
+                        System.out.print("Pilih (0-1): ");
+
+                        String pilMenu = scanner.nextLine();
+                        if (pilMenu.equals("1")) {
+                            prosesKeranjangBelanja(katalogProduk, pelangganaktif);
+                        }
+                    }
+                    break;
+                case "2":
+                    System.out.print("Masukkan Nama Toko: ");
+                    String namaToko = scanner.nextLine();
+                    katalogProduk = tambahProdukFacade.cariProdukByNamaToko(namaToko);
+
+                    if (katalogProduk == null || katalogProduk.isEmpty()) {
+                        System.out.println("Toko saat ini kosong, belum ada produk yang dijual.");
+                    } else {
+                        System.out.println("\n--- KATALOG TOKO: " + namaToko + " ---");
+                        for (Produk p : katalogProduk) {
+                            String hargaRupiah = String.format(new Locale("id", "ID"), "%,.0f", p.getHarga());
+                            System.out.println(
+                                    "ID: [" + p.getIdProduk() + "] " + p.getNama() + " | Harga: Rp" + hargaRupiah
+                                            + " | Stok: " + p.getStok());
+                        }
+                        System.out.println("=======================================");
+                        System.out.println("\nmenu:");
+                        System.out.println("1. Tambah Pesanan (Masukkan ke Keranjang)");
+                        System.out.println("0. Kembali ke Dashboard");
+                        System.out.print("Pilih (0-1): ");
+
+                        String pilMenu = scanner.nextLine();
+                        if (pilMenu.equals("1")) {
+                            prosesKeranjangBelanja(katalogProduk, pelangganaktif);
+                        }
+                    }
+                    break;
+                case "3":
+                    katalogProduk = tambahProdukFacade.ambilSemuaProduk();
+                    if (katalogProduk == null || katalogProduk.isEmpty()) {
+                        System.out.println("Belum ada produk yang dijual untuk dibeli.");
+                    } else {
+                        prosesKeranjangBelanja(katalogProduk, pelangganaktif);
+                    }
+                case "4":
+                    pesananFacade = new PesananFacade();
+                    List<Pesanan> riwayat = pesananFacade.ambilRiwayatPesanan(pelangganaktif);
+
+                    if (riwayat.isEmpty()) {
+                        System.out.println("\nAnda belum memiliki riwayat pesanan.");
+                    } else {
+                        System.out.println("\n--- RIWAYAT PESANAN SAYA ---");
+                        for (Pesanan p : riwayat) {
+                            String totalRupiah = String.format(new Locale("id", "ID"), "%,.0f", p.getTotalHarga());
+                            System.out.println("ID: [" + p.getIdPesanan() + "] | Status: "
+                                    + p.getCurrentState().getClass().getSimpleName().toUpperCase()
+                                    + " | Total: Rp" + totalRupiah);
+                        }
+                        System.out.println("=======================================");
+
+                        System.out.print("\nKetik ID Pesanan untuk melihat detail/bayar (atau 0 untuk kembali): ");
+                        int idCatat = Integer.parseInt(scanner.nextLine());
+
+                        if (idCatat != 0) {
+                            Pesanan pesananTerpilih = null;
+                            for (Pesanan p : riwayat) {
+                                if (p.getIdPesanan() == idCatat) {
+                                    pesananTerpilih = p;
+                                    break;
+                                }
+                            }
+
+                            if (pesananTerpilih != null) {
+                                menuPesanan(pesananTerpilih);
+                            } else {
+                                System.out.println("ID Pesanan tidak ditemukan.");
+                            }
+                        }
+                    }
+                    break;
+                case "0":
+                    System.out.println("Berhasil Logout.");
+                    dashboard = false;
+                    break;
+                default:
+                    System.out.println("Pilihan tidak valid.");
+            }
+        }
+    }
+
+    private void menuBayarPesanan(Pesanan pesanan) {
+        System.out.println("\n--- PILIH METODE PEMBAYARAN (STRATEGY PATTERN) ---");
+        System.out.println("1. GoPay");
+        System.out.println("2. QRIS");
+        System.out.println("3. Transfer Bank Virtual Account");
+        System.out.print("Pilih metode (1-3): ");
+        String metode = scanner.nextLine();
+
+        pesananFacade.bayarPesanan(pesanan, metode);
+    }
+
+    private void prosesKeranjangBelanja(List<Produk> katalogProduk, Pelanggan pelangganaktif) {
+        pesananFacade = new PesananFacade();
+        boolean menuPesanan = true;
+        int jumlahItemKeranjang = 0;
+
+        while (menuPesanan) {
+
+            System.out.println("\n--- ISI KERANJANG: " + jumlahItemKeranjang + " ITEM ---");
+
+            System.out.print("Masukkan ID Produk yang ingin dibeli (Ketik 0 untuk batal/kembali): ");
+
+            int idPilihan = Integer.parseInt(scanner.nextLine());
+            if (idPilihan == 0) {
+                break;
+            }
+
+            System.out.print("Masukkan Jumlah Kuantitas (Qty)     : ");
+            int qty = Integer.parseInt(scanner.nextLine());
+            Produk produkPilihan = null;
+            for (Produk p : katalogProduk) {
+                if (p.getIdProduk() == idPilihan) {
+                    produkPilihan = p;
+                    break;
+                }
+            }
+            if (produkPilihan == null) {
+                System.out.println("ID Produk tidak ditemukan. Transaksi dibatalkan.");
+                continue;
+            }
+            if (produkPilihan.getStok() < qty) {
+                System.out.println("Stok tidak mencukupi! Stok tersedia saat ini: " + produkPilihan.getStok());
+                continue;
+            }
+            pesananFacade.tambahKeKeranjang(produkPilihan, qty);
+            jumlahItemKeranjang++;
+            System.out.println(qty + "x " + produkPilihan.getNama() + " berhasil masuk ke keranjang!");
+            System.out.print("\nIngin tambah produk lain ke keranjang? (Y/N): ");
+            String answer = scanner.nextLine();
+            if (answer.equalsIgnoreCase("N")) {
+                menuPesanan = false;
+            }
+        }
+        if (jumlahItemKeranjang == 0) {
+            System.out.println("Keranjang Anda kosong. Kembali ke Dashboard...");
             return;
         }
 
-        if (produkPilihan.getStok() < qty) {
-            System.out.println("Stok tidak mencukupi! Stok tersedia saat ini: " + produkPilihan.getStok());
-            return;
-        }
-
-        // Masukkan item ke dalam keranjang belanja temporary
-        pesananFacade.tambahKeKeranjang(produkPilihan, qty);
-
+        // checkout menu
+        System.out.println("\n=======================================");
+        System.out.println("          CHECKOUT PESANAN             ");
+        System.out.println("=======================================");
         System.out.print("\nMasukkan Alamat Pengiriman: ");
         String alamat = scanner.nextLine();
-        System.out.print("Masukkan Ekspedisi Kirim (JNE/J&T): ");
+        System.out.print("Masukkan Ekspedisi Kirim (contoh: JNE/J&T): ");
         String ekspedisi = scanner.nextLine();
 
-        // Facade memicu perakitan objek pesanan serta mengikat relasi dengan pelangganAktif
-        Pesanan pesananSaya = pesananFacade.buatPesananOtomatis(pelangganaktif, alamat, ekspedisi);
+        System.out.println("Sedang memproses pesanan Anda...");
+        Pesanan pesananSaya = pesananFacade.buatPesanan(pelangganaktif, alamat, ekspedisi);
         if (pesananSaya != null) {
             System.out.println("\n Pesanan Berhasil Dibuat! Total Tagihan: Rp" + pesananSaya.getTotalHarga());
-            System.out.println(" Total transaksi di akun Anda: " + pelangganaktif.getHistoryPesanan().size() + " pesanan.");
-            
+
             boolean diMenuPesanan = true;
             while (diMenuPesanan) {
-                System.out.println("\n--- AKSI PESANAN #" + pesananSaya.getIdPesanan() + " ---");
-                System.out.println("1. Bayar Sekarang (Strategy & State Pattern)");
-                System.out.println("2. Kirim Barang (Simulasi Penjual/Kurir)");
-                System.out.println("3. Batalkan Pesanan (Cancel State)");
-                System.out.println("0. Selesai / Kembali ke Menu Utama");
-                System.out.print("Pilih Aksi (0-3): ");
+                System.out.println("\n---PESANAN #" + pesananSaya.getIdPesanan() + " ---");
+                System.out.println("1. Bayar Sekarang");
+                System.out.println("2. Cek Status");
+                System.out.println("3. Batalkan Pesanan");
+                System.out.println("0. Kembali ke Menu Utama");
+                System.out.print("Pilih menu (0-3): ");
                 String aksi = scanner.nextLine();
 
                 switch (aksi) {
@@ -350,10 +526,10 @@ public class MainTUI {
                         menuBayarPesanan(pesananSaya);
                         break;
                     case "2":
-                        pesananSaya.kirim(); // mengirim pesanan
+                        pesananSaya.kirim();
                         break;
                     case "3":
-                        pesananSaya.batal(); //  membatalkan pesanan
+                        pesananSaya.batal();
                         break;
                     case "0":
                         diMenuPesanan = false;
@@ -367,15 +543,36 @@ public class MainTUI {
         }
     }
 
-private void menuBayarPesanan(Pesanan pesanan) {
-    System.out.println("\n--- PILIH METODE PEMBAYARAN (STRATEGY PATTERN) ---");
-    System.out.println("1. GoPay");
-    System.out.println("2. QRIS");
-    System.out.println("3. Transfer Bank Virtual Account");
-    System.out.print("Pilih metode (1-3): ");
-    String metode = scanner.nextLine();
+    private void menuPesanan(Pesanan pesananSaya) {
+        boolean diMenuPesanan = true;
+        while (diMenuPesanan) {
+            System.out.println("\n--- AKSI PESANAN #" + pesananSaya.getIdPesanan() + " ---");
+            System.out.println(
+                    "Status Saat Ini: " + pesananSaya.getCurrentState().getClass().getSimpleName().toUpperCase());
+            System.out.println("1. Bayar Sekarang");
+            System.out.println("2. Kirim Barang (Simulasi Penjual)");
+            System.out.println("3. Batalkan Pesanan");
+            System.out.println("0. Kembali ke Menu Utama");
+            System.out.print("Pilih menu (0-3): ");
 
-    // FACADE BEKERJA: Menembakkan instruksi bayar ke objek strategi yang cocok
-    pesananFacade.bayarPesanan(pesanan, metode);
-}
+            String aksi = scanner.nextLine();
+            switch (aksi) {
+                case "1":
+                    menuBayarPesanan(pesananSaya);
+                    break;
+                case "2":
+                    pesananFacade.kirimPesanan(pesananSaya);
+                    break;
+                case "3":
+                    pesananFacade.batalkanPesanan(pesananSaya);
+
+                    break;
+                case "0":
+                    diMenuPesanan = false;
+                    break;
+                default:
+                    System.out.println("Pilihan tidak valid.");
+            }
+        }
+    }
 }

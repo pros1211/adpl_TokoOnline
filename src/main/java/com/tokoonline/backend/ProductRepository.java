@@ -34,9 +34,9 @@ public class ProductRepository {
 
         return false;
     }
+
     public List<Produk> getAllProduk() {
         List<Produk> listProduk = new ArrayList<>();
-        // Asumsikan di tabel database temanmu ada kolom 'id_produk' sebagai primary key auto_increment
         String query = "SELECT id_produk, id_penjual, jenis, nama, harga, stok FROM produk";
 
         try {
@@ -52,14 +52,47 @@ public class ProductRepository {
                 double harga = rs.getDouble("harga");
                 int stok = rs.getInt("stok");
 
-                // MANFAATKAN FACTORY: Biarkan Factory yang melahirkan objek turunannya secara polimorfis
-                // Kita gunakan berat tiruan atau default (misal: 0) karena tabel dasar baru menyimpan data umum
-                double beratDefault = 1.0; 
+                double beratDefault = 1.0;
                 Produk produk = ProductFactory.buatProduk(jenis, idPenjual, nama, harga, beratDefault, stok);
-                
+
                 if (produk != null) {
-                    // Set ID asli yang didapat dari auto_increment database ke objek produk
-                    produk.setIdProduk(idProduk); 
+                    produk.setIdProduk(idProduk);
+                    listProduk.add(produk);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Gagal mengambil data produk dari database: " + e.getMessage());
+        }
+
+        return listProduk;
+    }
+
+    public List<Produk> getAllProdukByToko(String namaToko) {
+        List<Produk> listProduk = new ArrayList<>();
+
+        String query = "SELECT id_produk, id_penjual, jenis, nama, harga, stok FROM produk" +
+                "JOIN penjual ON penjual.id_penjual = produk.id_penjual " +
+                "WHERE penjual.username = ?";
+
+        try {
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, namaToko);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int idProduk = rs.getInt("id_produk");
+                int idPenjual = rs.getInt("id_penjual");
+                String jenis = rs.getString("jenis");
+                String nama = rs.getString("nama");
+                double harga = rs.getDouble("harga");
+                int stok = rs.getInt("stok");
+
+                double beratDefault = 1.0;
+                Produk produk = ProductFactory.buatProduk(jenis, idPenjual, nama, harga, beratDefault, stok);
+
+                if (produk != null) {
+                    produk.setIdProduk(idProduk);
                     listProduk.add(produk);
                 }
             }

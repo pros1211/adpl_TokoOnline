@@ -1,79 +1,80 @@
 package com.tokoonline.builder;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.tokoonline.model.Pesanan;
-import com.tokoonline.model.Produk;
 import com.tokoonline.State.StatePesanan;
 import com.tokoonline.model.ItemPesanan;
 import com.tokoonline.model.Pelanggan;
-public class PesananBuilder {
-    int id;
-    Pelanggan pembeli;
-    StatePesanan currentState;
-    List<ItemPesanan> daftaritem;
-    String alamatKirim;
-    String ekpedisi;
-    Double totalharga;
-    
-    
-    public Double getTotalharga() {
-        return totalharga;
-    }
-    public PesananBuilder(int id) {
-        this.id = id;
-    }
-    public boolean setPelanggan(Pelanggan p) {
-        if (p != null) {
-            this.pembeli = p;
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public boolean tambahitem(Produk item,int kuantitas){
-        ItemPesanan items=new ItemPesanan(item, kuantitas);
-        if(items!=null){
-            daftaritem.add(items);
-            this.totalharga+=items.getSubtotal();
-            return true;
+import com.tokoonline.model.Pesanan;
 
+public class PesananBuilder {
+    private int id;
+    private Pelanggan pembeli;
+    private StatePesanan currentState;
+    private List<ItemPesanan> daftarItem = new ArrayList<>();
+    private String alamatKirim;
+    private String ekspedisi;
+    private Double totalHarga = 0.0;
+
+    public PesananBuilder setPelanggan(Pelanggan pembeli) {
+        this.pembeli = pembeli;
+        return this;
+    }
+
+    public PesananBuilder tambahItem(ItemPesanan item) {
+        this.daftarItem.add(item);
+        this.totalHarga += item.getSubtotal();
+        return this;
+    }
+
+    public PesananBuilder setAlamat(String alamat) {
+        this.alamatKirim = alamat;
+        return this;
+    }
+
+    public PesananBuilder setEkspedisi(String kurir) {
+        this.ekspedisi = kurir;
+        return this;
+    }
+
+    public Pesanan build() {
+        if (this.daftarItem.isEmpty()) {
+            throw new IllegalStateException("Keranjang tidak boleh kosong!");
         }
-        return false;
-    }
-    public boolean setAlamat(String alamat){
-        if(alamat!=null){
-            this.alamatKirim=alamat;
-            return true;
+        if (this.pembeli == null || this.alamatKirim == null) {
+            throw new IllegalStateException("Data pembeli dan alamat harus lengkap!");
         }
-        return false;
+
+        return new Pesanan(this);
     }
-    public boolean setEkpedisiKurir(String ekpedisi){
-        if(ekpedisi!=null){
-            this.ekpedisi=ekpedisi;
-            return true;
-        }
-        return false;
-    }
-    public Pesanan build(){
-        return  new Pesanan(this);
-    }
+
     public int getId() {
         return id;
     }
+
     public Pelanggan getPembeli() {
         return pembeli;
     }
-    public Object getCurrentState() {
+
+    public StatePesanan getCurrentState() {
         return currentState;
     }
-    public List<ItemPesanan> getDaftaritem() {
-        return daftaritem;
+
+    public List<ItemPesanan> getDaftarItem() {
+        return daftarItem;
     }
+
     public String getAlamatKirim() {
         return alamatKirim;
     }
-    public String getEkpedisi() {
-        return ekpedisi;
+
+    public String getEkspedisi() {
+        return ekspedisi;
     }
+
+    public Double getTotalHarga() {
+        return totalHarga;
+    }
+
 }

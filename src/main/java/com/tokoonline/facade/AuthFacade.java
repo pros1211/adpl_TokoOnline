@@ -8,9 +8,9 @@ import com.tokoonline.model.Penjual;
 public class AuthFacade {
     private PenjualRepository repoPenjual = new PenjualRepository();
     private Penjual penjualAktif = null;
-    private PelangganRepository pelangganRepo=new PelangganRepository();
+    private PelangganRepository pelangganRepo = new PelangganRepository();
     private Pelanggan pelangganAktif = null;
-  
+
     public boolean login(String username, String password) {
         Penjual autentikasiPenjual = repoPenjual.verifikasiLogin(username, password);
         if (autentikasiPenjual != null) {
@@ -33,7 +33,8 @@ public class AuthFacade {
         return penjualAktif;
     }
 
-     public boolean loginPelanggan(String username, String password) {
+    // pelanggan section
+    public boolean loginPelanggan(String username, String password) {
         Pelanggan autentikasiPelanggan = pelangganRepo.verifikasiLogin(username, password);
         if (autentikasiPelanggan != null) {
             this.pelangganAktif = autentikasiPelanggan;
@@ -42,10 +43,20 @@ public class AuthFacade {
         return false;
     }
 
-    public boolean registerPelanggan(String username, String password) {
-        Pelanggan prosesAkun = pelangganRepo.buatAkun(username, password);
-        if (prosesAkun != null) {
-            this.pelangganAktif = prosesAkun;
+    // login menggunakan nomor telepon
+    public boolean loginPelangganByPhone(String nomorHP, String password) {
+        Pelanggan autentikasiPelanggan = pelangganRepo.verifikasiLoginByPhone(nomorHP, password);
+        if (autentikasiPelanggan != null) {
+            this.pelangganAktif = autentikasiPelanggan;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean registerPelanggan(String username, String password, String alamat, String nomorHP) {
+        Pelanggan prosesPelanggan = pelangganRepo.buatAkun(username, password, alamat, nomorHP);
+        if (prosesPelanggan != null) {
+            this.pelangganAktif = prosesPelanggan;
             return true;
         }
         return false;

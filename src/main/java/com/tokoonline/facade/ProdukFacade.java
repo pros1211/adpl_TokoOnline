@@ -118,7 +118,12 @@ public class ProdukFacade {
                 return null;
         }
     }
+
     public java.util.List<Produk> ambilSemuaProduk() {
-        return dataProduk.getAllProduk(); 
+        return dataProduk.getAllProduk();
+    }
+
+    public java.util.List<Produk> cariProdukByNamaToko(String namaToko) {
+        return dataProduk.getAllProdukByToko(namaToko);
     }
 }

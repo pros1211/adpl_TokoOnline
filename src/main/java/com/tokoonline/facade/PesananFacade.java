@@ -1,87 +1,86 @@
 package com.tokoonline.facade;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.tokoonline.Strategi.Bank;
+import com.tokoonline.Strategi.Gopay;
+import com.tokoonline.Strategi.Qris;
 import com.tokoonline.Strategi.StrategiPembayaran;
+import com.tokoonline.backend.PesananRepository;
 import com.tokoonline.builder.PesananBuilder;
-import com.tokoonline.model.Bank;
-import com.tokoonline.model.Gopay;
 import com.tokoonline.model.ItemPesanan;
 import com.tokoonline.model.Pelanggan;
 import com.tokoonline.model.Pesanan;
 import com.tokoonline.model.Produk;
-import com.tokoonline.model.Qris;
 
 public class PesananFacade {
-    private static int idCounter = 1000; // Auto-increment untuk ID Pesanan
-    private List<ItemPesanan> keranjangSesiIni;
+    private PesananBuilder keranjangBuilder;
+
+    private PesananRepository pesananRepo;
 
     public PesananFacade() {
-        this.keranjangSesiIni = new ArrayList<>();
+        this.keranjangBuilder = new PesananBuilder();
+        this.pesananRepo = new PesananRepository();
     }
 
-    // 1. Membantu TUI memasukkan produk langsung ke keranjang belanja pembeli
-    public void tambahKeKeranjang(Produk produk, int kuantitas) {
-        ItemPesanan item = new ItemPesanan(produk, kuantitas);
-        this.keranjangSesiIni.add(item);
+    public void tambahKeKeranjang(Produk produk, int qty) {
+        ItemPesanan itemBaru = new ItemPesanan(produk, qty);
+
+        keranjangBuilder.tambahItem(itemBaru);
     }
 
-    public List<ItemPesanan> getKeranjangSesiIni() {
-        return this.keranjangSesiIni;
-    }
+    public Pesanan buatPesanan(Pelanggan pembeli, String alamat, String ekspedisi) {
+        try {
+            Pesanan pesananBaru = keranjangBuilder
+                    .setPelanggan(pembeli)
+                    .setAlamat(alamat)
+                    .setEkspedisi(ekspedisi)
+                    .build();
 
-    public void kosongkanKeranjang() {
-        this.keranjangSesiIni.clear();
-    }
+            boolean suksesSimpan = pesananRepo.simpanPesanan(pesananBaru);
 
-    // 2. Merakit pesanan secara otomatis menggunakan PesananBuilder
-    public Pesanan buatPesananOtomatis(Pelanggan pembeli, String alamat, String ekspedisi) {
-        if (keranjangSesiIni.isEmpty()) {
-            return null;
+            if (suksesSimpan) {
+                return pesananBaru;
+            }
+        } catch (IllegalStateException e) {
+            System.out.println("Checkout Gagal: " + e.getMessage());
         }
-
-        idCounter++;
-        PesananBuilder builder = new PesananBuilder(idCounter);
-        builder.setPelanggan(pembeli);
-        builder.setAlamat(alamat);
-        builder.setEkpedisiKurir(ekspedisi);
-
-        // Pindahkan semua item di keranjang ke dalam builder
-        for (ItemPesanan item : keranjangSesiIni) {
-            builder.tambahitem(item.getProduk(), item.getKuantitas());
-        }
-
-        // Kosongkan keranjang sesi setelah checkout sukses
-        kosongkanKeranjang();
-
-        return builder.build();
+        return null;
     }
 
-    // 3. Menangani eksekusi pembayaran menggunakan Strategy Pattern
-    public boolean bayarPesanan(Pesanan pesanan, String pilihanMetode) {
-        // Factory sederhana untuk menentukan objek strategi pembayaran
-        StrategiPembayaran strategi;
-        switch (pilihanMetode) {
+    public void bayarPesanan(Pesanan pesanan, String metodePilihan) {
+        StrategiPembayaran strategi = null;
+
+        switch (metodePilihan) {
             case "1":
-                strategi = new Gopay();
+                strategi = new Gopay(pesanan.getPembeli().getNoHp());
                 break;
             case "2":
-                strategi = new Qris();
+                strategi = new Qris("QRIS-PAYLOAD-" + pesanan.getIdPesanan());
                 break;
             case "3":
-                strategi = new Bank();
+                strategi = new Bank("BCA Virtual Account", "8077" + pesanan.getPembeli().getNoHp());
                 break;
             default:
-                System.out.println("❌ Metode pembayaran tidak dikenali!");
-                return false;
+                System.out.println("Metode pembayaran tidak dikenali.");
+                return;
         }
 
-        // Suntikkan strategi ke dalam objek pesanan
         pesanan.setMetodePembayaran(strategi);
-        
-        // Eksekusi pembayaran (yang di dalamnya memicu pemotongan saldo & transisi State)
+
         pesanan.bayar();
-        return true;
+        pesananRepo.updateStatusPesanan(pesanan);
+    }
+
+    public java.util.List<Pesanan> ambilRiwayatPesanan(Pelanggan pembeli) {
+        return pesananRepo.getRiwayatPesanan(pembeli);
+    }
+
+    public void batalkanPesanan(Pesanan pesanan) {
+        pesanan.batal();
+        pesananRepo.updateStatusPesanan(pesanan);
+    }
+
+    public void kirimPesanan(Pesanan pesanan) {
+        pesanan.kirim();
+        pesananRepo.updateStatusPesanan(pesanan);
     }
 }

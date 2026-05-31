@@ -1,7 +1,6 @@
 package com.tokoonline.Strategi;
-public interface StrategiPembayaran{
- void prosesPembayaran(Double nominal);
 
- 
+public interface StrategiPembayaran {
+    void prosesPembayaran(Double nominal);
 
 }
