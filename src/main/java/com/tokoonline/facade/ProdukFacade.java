@@ -118,4 +118,7 @@ public class ProdukFacade {
                 return null;
         }
     }
+    public java.util.List<Produk> ambilSemuaProduk() {
+        return dataProduk.getAllProduk(); 
+    }
 }
