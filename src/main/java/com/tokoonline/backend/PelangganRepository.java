@@ -8,6 +8,7 @@ import com.tokoonline.config.DatabaseConnection;
 import com.tokoonline.model.Pelanggan;
 
 public class PelangganRepository {
+    // method verifikasi login penjual
     public Pelanggan verifikasiLogin(String username, String password) {
         String query = "SELECT * FROM pembeli WHERE username = ? AND password = ?";
         try {
@@ -29,6 +30,7 @@ public class PelangganRepository {
         return null;
     }
 
+    // method verifikasi login menggunakan nomor HP sebagai pengganti username
     public Pelanggan verifikasiLoginByPhone(String noHp, String password) {
         String query = "SELECT * FROM pembeli WHERE noHp = ? AND password = ?";
         try {
@@ -43,10 +45,10 @@ public class PelangganRepository {
                 String dbPassword = rs.getString("password");
                 String dbAlamat = rs.getString("alamat");
                 String dbNoHp = rs.getString("noHp");
-
+                // jika ditemukan maka return akun pelanggan
                 Pelanggan akunPelanggan = new Pelanggan(id, dbUsername, dbPassword);
                 akunPelanggan.setAlamat(dbAlamat);
-                akunPelanggan.setNoHp(noHp);
+                akunPelanggan.setNoHp(dbNoHp);
                 return akunPelanggan;
             }
         } catch (Exception e) {
@@ -55,7 +57,9 @@ public class PelangganRepository {
         return null;
     }
 
+    // method untuk buat akun pembeli
     public Pelanggan buatAkun(String username, String password, String alamat, String nomorHP) {
+        // query untuk insert data pembeli
         String query = "INSERT INTO pembeli (username, password, alamat, noHp) VALUES (?, ?, ?, ?)";
         try {
             Connection conn = DatabaseConnection.getInstance().getConnection();

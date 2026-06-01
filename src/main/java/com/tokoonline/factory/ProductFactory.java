@@ -10,10 +10,11 @@ import com.tokoonline.model.Perabotan;
 import com.tokoonline.model.Produk;
 
 public class ProductFactory {
+    // method buat produk
     public static Produk buatProduk(String jenis, int idPenjual, String nama, double harga, double berat, int stok) {
 
         int idProduk = 0;
-
+        // switch case tiap kategori produk
         switch (jenis.toLowerCase()) {
             case "elektronik":
                 return new Elektronik(idProduk, idPenjual, nama, harga, berat, stok, "", 0, 0.0);

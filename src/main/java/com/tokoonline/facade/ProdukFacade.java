@@ -14,6 +14,7 @@ import com.tokoonline.model.Produk;
 public class ProdukFacade {
     private ProductRepository dataProduk = new ProductRepository();
 
+    // method tambah produk tiap kategori
     public boolean tambahElektronik(int id_penjual, String nama, double harga, double berat,
             int stok, String merk, int garansi, double daya) {
         Produk p = ProductFactory.buatProduk("Elektronik", id_penjual, nama, harga, berat, stok);
@@ -102,27 +103,12 @@ public class ProdukFacade {
         return dataProduk.simpanProduk(p);
     }
 
-    private String getKategori(int pilihan) {
-        switch (pilihan) {
-            case 1:
-                return "Elektronik";
-            case 2:
-                return "Makanan";
-            case 3:
-                return "Pakaian";
-            case 4:
-                return "Kecantikan";
-            case 5:
-                return "Perabotan";
-            default:
-                return null;
-        }
-    }
-
+    // method ambil semua produk yang ada di seluruh toko
     public java.util.List<Produk> ambilSemuaProduk() {
         return dataProduk.getAllProduk();
     }
 
+    // method ambil produk di suatu toko
     public java.util.List<Produk> cariProdukByNamaToko(String namaToko) {
         return dataProduk.getAllProdukByToko(namaToko);
     }

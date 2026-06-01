@@ -8,7 +8,9 @@ import com.tokoonline.config.DatabaseConnection;
 import com.tokoonline.model.Penjual;
 
 public class PenjualRepository {
+    // method verifikasi login penjual
     public Penjual verifikasiLogin(String username, String password) {
+        // ambil data akun penjual
         String query = "SELECT * FROM penjual WHERE username = ? AND password = ?";
         try {
             Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -20,15 +22,19 @@ public class PenjualRepository {
                 int id = rs.getInt("id_penjual");
                 String dbUsername = rs.getString("username");
                 String dbPassword = rs.getString("password");
+                // kembalikan objek penjual jika ditemukan
                 return new Penjual(id, dbUsername, dbPassword);
             }
         } catch (Exception e) {
+            // jika tidak ditemukan maka return gagal
             System.out.println("gagal melakukan login : " + e.getMessage());
         }
         return null;
     }
 
+    // method pembuatan akun penjual
     public Penjual buatAkun(String username, String password) {
+        // query insert data penjual
         String query = "INSERT INTO penjual (username, password) VALUES (?, ?)";
         try {
             Connection conn = DatabaseConnection.getInstance().getConnection();

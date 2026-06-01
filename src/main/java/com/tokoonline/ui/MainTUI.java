@@ -27,8 +27,11 @@ public class MainTUI {
     }
 
     public void run() {
+        // method menjalankan menu utama
         boolean running = true;
+        // selama terbuka menu utama
         while (running) {
+            // print menu login/buat akun
             System.out.println("\n=======================================");
             System.out.println("   Selamat Datang di Toko Online");
             System.out.println("=======================================");
@@ -57,10 +60,13 @@ public class MainTUI {
         }
     }
 
+    // method untuk menu login penjual
     private void menuLoginPenjual() {
         System.out.println("\n--- LOGIN PENJUAL ---");
+        // input username
         System.out.print("Username : ");
         String username = scanner.nextLine();
+        // input password
         System.out.print("Password : ");
         String password = scanner.nextLine();
 
@@ -75,6 +81,7 @@ public class MainTUI {
         }
     }
 
+    // menu buat akun
     private void menuBuatAkun() {
         System.out.println("\n--- BUAT AKUN BARU ---");
         System.out.println("Daftar sebagai:");
@@ -83,7 +90,7 @@ public class MainTUI {
         System.out.print("Pilih menu (1-2): ");
 
         String peran = scanner.nextLine();
-
+        // daftar sebagai penjual
         if (peran.equals("1")) {
             System.out.println("\n[Registrasi Penjual]");
             System.out.print("Masukkan Username baru : ");
@@ -97,7 +104,7 @@ public class MainTUI {
                 System.out.println("Pembuatan akun penjual berhasil! Selamat datang, " + newUsername);
 
             }
-
+            // daftar sebagai pembeli
         } else if (peran.equals("2")) {
             System.out.print("Masukkan Username baru : ");
             String newUsername = scanner.nextLine();
@@ -116,6 +123,7 @@ public class MainTUI {
         }
     }
 
+    // menu tambah produk oleh penjual
     private void menuTambahProduk(int idPenjual) {
         System.out.println("\n--- TAMBAH PRODUK BARU ---");
         System.out.println("Pilih Kategori Produk:");
@@ -125,6 +133,7 @@ public class MainTUI {
         System.out.println("4. Kecantikan");
         System.out.println("5. Perabotan");
         System.out.print("Kategori (1-5): ");
+        // input kategori barang
         int kodeBarang = Integer.parseInt(scanner.nextLine());
 
         System.out.print("Nama Produk : ");
@@ -140,13 +149,14 @@ public class MainTUI {
         int stok = Integer.parseInt(scanner.nextLine());
         boolean sukses = false;
         switch (kodeBarang) {
+            // jika elektronik wajib input merk, garansi, dan daya
             case 1:
                 System.out.print("Merk        : ");
                 String merk = scanner.nextLine();
                 System.out.print("Garansi (bln): ");
                 int garansi = Integer.parseInt(scanner.nextLine());
                 System.out.print("Daya (Watt) : \n");
-                Double daya=Double.parseDouble(scanner.nextLine());
+                Double daya = Double.parseDouble(scanner.nextLine());
                 sukses = tambahProdukFacade.tambahElektronik(idPenjual, nama, harga, berat, stok, merk, garansi,
                         daya);
 
@@ -157,6 +167,8 @@ public class MainTUI {
                 }
                 break;
             case 2:
+                // jika makanan/minuman wajib masukkan kategori, bahan, halal, tanggal
+                // kadaluarsa
                 System.out.print("kategori (makanan/minuman): ");
                 String kategori = scanner.nextLine();
                 System.out.print("bahan : ");
@@ -184,6 +196,7 @@ public class MainTUI {
                 }
                 break;
             case 3:
+                // jika pakaian wajib input warna, gender, ukuran
                 System.out.print("Warna       : ");
                 String warna = scanner.nextLine();
                 System.out.print("Gender (L/P): ");
@@ -199,6 +212,7 @@ public class MainTUI {
                 }
                 break;
             case 4:
+                // jika produk kecantikan wajib input kategori, bahan, tanggal kadaluarsa
                 System.out.print("kategori :");
                 kategori = scanner.nextLine();
                 System.out.print("bahan : ");
@@ -223,6 +237,7 @@ public class MainTUI {
                 }
                 break;
             case 5:
+                // jika perabotan maka wajib input kategori, bahan, panjang, lebar, tinggi
                 System.out.print("Kategori (Contoh: Meja/Kursi) : ");
                 String kategoriPerabotan = scanner.nextLine();
 
@@ -250,19 +265,21 @@ public class MainTUI {
 
     }
 
+    // method dashboard penjual
     private void dashboardPenjual() {
         boolean diDashboard = true;
-
+        // ambil id penjual
         int idPenjualAktif = autentikasi.getPenjualAktif().getId();
 
         while (diDashboard) {
-            System.out.println("\n=== TOKO SAYA (" + autentikasi.getPenjualAktif().getUsername() + ") ===");
+            // ambil username toko dan print menu
+            System.out.println("\n=== TOKO (" + autentikasi.getPenjualAktif().getUsername() + ") ===");
             System.out.println("1. Tambah Produk Baru");
             System.out.println("0. Logout");
             System.out.print("Pilih (0-1): ");
 
             String pilihan = scanner.nextLine();
-
+            // jika menu 1 maka pindah ke menu tambah produk
             if (pilihan.equals("1")) {
                 menuTambahProduk(idPenjualAktif);
             } else if (pilihan.equals("0")) {
@@ -274,6 +291,7 @@ public class MainTUI {
         }
     }
 
+    // menu login pembeli
     private void menuLoginPembeli() {
         System.out.println("\n--- Selamat datang kembali Pelanggan! ---");
         System.out.println("pilih metode login: ");
@@ -281,6 +299,7 @@ public class MainTUI {
         System.out.println("2. Menggunakan nomor HP");
         System.out.print("pilihan (1/2): ");
         String metode = scanner.nextLine();
+        // menggunakan username
         if (metode.equals("1")) {
             System.out.print("Username : ");
             String username = scanner.nextLine();
@@ -297,6 +316,7 @@ public class MainTUI {
 
                 System.out.println("Login Gagal! Username atau password salah.");
             }
+            // menggunakan nomor telepon
         } else if (metode.equals("2")) {
             System.out.print("nomor telepon : ");
             String nomorHp = scanner.nextLine();
@@ -315,11 +335,12 @@ public class MainTUI {
         }
     }
 
+    // dashboard pembeli
     private void dashboardPembeli() {
         Pelanggan pelangganaktif = autentikasi.getPelangganAktif();
         boolean dashboard = true;
         while (dashboard) {
-
+            // print menu pembeli
             System.out.println("\n=======================================");
             System.out.println("            DASHBOARD PEMBELI      ");
             System.out.println("=======================================");
@@ -327,14 +348,14 @@ public class MainTUI {
             System.out.println("Mau Cari Apa Hari ini?");
             System.out.println("1. Lihat Semua Katalog Produk");
             System.out.println("2. Cari Produk Berdasarkan Nama Toko");
-            System.out.println("3. Tambah Pesanan");
-            System.out.println("4. Cek Status & Riwayat Pesanan");
+            System.out.println("3. Cek Status & Riwayat Pesanan");
             System.out.println("0. Logout");
-            System.out.print("Pilih (0-4): ");
+            System.out.print("Pilih (0-3): ");
             String method = scanner.nextLine();
 
             List<Produk> katalogProduk = new ArrayList<>();
             switch (method) {
+                // jika menu 1 maka ambil semua produk yang ada
                 case "1":
                     katalogProduk = tambahProdukFacade.ambilSemuaProduk();
 
@@ -350,7 +371,7 @@ public class MainTUI {
                         }
                         System.out.println("=======================================");
                         System.out.println("\nmenu:");
-                        System.out.println("1. Tambah Pesanan (Masukkan ke Keranjang)");
+                        System.out.println("1. Tambah Pesanan");
                         System.out.println("0. Kembali ke Dashboard");
                         System.out.print("Pilih (0-1): ");
 
@@ -360,6 +381,7 @@ public class MainTUI {
                         }
                     }
                     break;
+                // menu 2 maka ambil produk yang ada di suatu toko
                 case "2":
                     System.out.print("Masukkan Nama Toko: ");
                     String namaToko = scanner.nextLine();
@@ -377,7 +399,7 @@ public class MainTUI {
                         }
                         System.out.println("=======================================");
                         System.out.println("\nmenu:");
-                        System.out.println("1. Tambah Pesanan (Masukkan ke Keranjang)");
+                        System.out.println("1. Tambah Pesanan");
                         System.out.println("0. Kembali ke Dashboard");
                         System.out.print("Pilih (0-1): ");
 
@@ -388,22 +410,13 @@ public class MainTUI {
                     }
                     break;
                 case "3":
-                    katalogProduk = tambahProdukFacade.ambilSemuaProduk();
-                    if (katalogProduk == null || katalogProduk.isEmpty()) {
-                        System.out.println("Belum ada produk yang dijual untuk dibeli.");
-                    } else {
-                        prosesKeranjangBelanja(katalogProduk, pelangganaktif);
-                    }
-                    break;
-                case "4":
-                 
-
+                    // jika menu 3 maka ambil seluruh riwayat pesanan
                     List<Pesanan> riwayat = pesananFacade.ambilRiwayatPesanan(pelangganaktif);
 
                     if (riwayat.isEmpty()) {
                         System.out.println("\nAnda belum memiliki riwayat pesanan.");
                     } else {
-                        System.out.println("\n--- RIWAYAT PESANAN SAYA ---");
+                        System.out.println("\n--- RIWAYAT PESANAN ---");
                         for (Pesanan p : riwayat) {
                             String totalRupiah = String.format(new Locale("id", "ID"), "%,.0f", p.getTotalHarga());
                             System.out.println("ID: [" + p.getIdPesanan() + "] | Status: "
@@ -432,6 +445,7 @@ public class MainTUI {
                         }
                     }
                     break;
+                // jika 0 maka logout
                 case "0":
                     System.out.println("Berhasil Logout.");
                     dashboard = false;
@@ -442,6 +456,7 @@ public class MainTUI {
         }
     }
 
+    // menu bayar pesanan
     private void menuBayarPesanan(Pesanan pesanan) {
         System.out.println("\n--- PILIH METODE PEMBAYARAN (STRATEGY PATTERN) ---");
         System.out.println("1. GoPay");
@@ -453,8 +468,9 @@ public class MainTUI {
         pesananFacade.bayarPesanan(pesanan, metode);
     }
 
+    // menu checkout dan konfigurasi data pesanan
     private void prosesKeranjangBelanja(List<Produk> katalogProduk, Pelanggan pelangganaktif) {
-        
+
         boolean menuPesanan = true;
         int jumlahItemKeranjang = 0;
 
@@ -546,14 +562,15 @@ public class MainTUI {
         }
     }
 
+    // menu pesanan
     private void menuPesanan(Pesanan pesananSaya) {
         boolean diMenuPesanan = true;
         while (diMenuPesanan) {
-            System.out.println("\n--- AKSI PESANAN #" + pesananSaya.getIdPesanan() + " ---");
+            System.out.println("\n--- PESANAN #" + pesananSaya.getIdPesanan() + " ---");
             System.out.println(
                     "Status Saat Ini: " + pesananSaya.getCurrentState().getClass().getSimpleName().toUpperCase());
             System.out.println("1. Bayar Sekarang");
-            System.out.println("2. Kirim Barang (Simulasi Penjual)");
+            System.out.println("2. Kirim Barang ");
             System.out.println("3. Batalkan Pesanan");
             System.out.println("0. Kembali ke Menu Utama");
             System.out.print("Pilih menu (0-3): ");

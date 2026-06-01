@@ -10,18 +10,23 @@ import com.tokoonline.model.Pelanggan;
 import com.tokoonline.model.Pesanan;
 
 public class PesananRepository {
+    // method untuk simpan pesanan
     public boolean simpanPesanan(Pesanan pesanan) {
+        // query untuk simpan informasi ringkasan pesanan (id pembeli, alamat,
+        // ekspedisi, total harga, status pesanan)
         String queryPesanan = "INSERT INTO pesanan (id_pembeli, alamat_kirim, ekspedisi, total_harga, status_pesanan) VALUES (?, ?, ?, ?, ?)";
-
+        // query untuk simpan detail pesanan (id pesanan, id produk, kuantitas dan
+        // subtotal)
         String queryDetail = "INSERT INTO detail_pesanan (id_pesanan, id_produk, kuantitas, subtotal) VALUES (?, ?, ?, ?)";
 
         Connection conn = null;
 
         try {
+            // ambil koneksi database singleton
             conn = DatabaseConnection.getInstance().getConnection();
-
+            // autocommit false agar setiap query sql yang dieksekusi bisa dirollback
             conn.setAutoCommit(false);
-
+            // simpan ringkasan pesanan
             PreparedStatement stmtPesanan = conn.prepareStatement(queryPesanan,
                     java.sql.Statement.RETURN_GENERATED_KEYS);
             stmtPesanan.setInt(1, pesanan.getPembeli().getId());
@@ -38,16 +43,16 @@ public class PesananRepository {
             int idPesananBaru = 0;
             if (rs.next()) {
                 idPesananBaru = rs.getInt(1);
-                pesanan.setIdPesanan(idPesananBaru); // SINKRONISASI ID
+                pesanan.setIdPesanan(idPesananBaru);
             } else {
                 throw new Exception("Gagal mendapatkan ID Pesanan dari database.");
             }
-
+            // simpan detail pesanan
             PreparedStatement stmtDetail = conn.prepareStatement(queryDetail);
-             String queryUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
-                PreparedStatement stmtStok =  conn.prepareStatement(queryUpdateStok);
+            String queryUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
+            PreparedStatement stmtStok = conn.prepareStatement(queryUpdateStok);
             for (ItemPesanan item : pesanan.getDaftaritem()) {
-               
+
                 stmtDetail.setInt(1, idPesananBaru);
                 stmtDetail.setInt(2, item.getProduk().getIdProduk());
                 stmtDetail.setInt(3, item.getKuantitas());
@@ -63,7 +68,7 @@ public class PesananRepository {
             return true;
 
         } catch (Exception e) {
-
+            // jika gagal tersimpan maka rollback
             System.out.println("Gagal menyimpan transaksi. Membatalkan pesanan... Error: " + e.getMessage());
             try {
                 if (conn != null) {
@@ -75,6 +80,7 @@ public class PesananRepository {
             return false;
 
         } finally {
+            // set autocommit true setelah selesai
             try {
                 if (conn != null) {
                     conn.setAutoCommit(true);
@@ -85,7 +91,9 @@ public class PesananRepository {
     }
 
     public java.util.List<Pesanan> getRiwayatPesanan(Pelanggan pembeli) {
+        // arraylist untuk menyimpan seluruh objek pesanan yang pernah dibuat
         java.util.List<Pesanan> riwayat = new java.util.ArrayList<>();
+        // query mengambil histori pesanan
         String query = "SELECT * FROM pesanan WHERE id_pembeli = ? ORDER BY id_pesanan DESC";
 
         try {
@@ -95,6 +103,7 @@ public class PesananRepository {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                // ambil data ringkasan pesanan dari tabel pesanan
                 int idPesanan = rs.getInt("id_pesanan");
                 String alamat = rs.getString("alamat_kirim");
                 String ekspedisi = rs.getString("ekspedisi");
@@ -127,6 +136,7 @@ public class PesananRepository {
     }
 
     public boolean updateStatusPesanan(Pesanan pesanan) {
+        // update isi status pesanan di tabel pesanan
         String query = "UPDATE pesanan SET status_pesanan = ? WHERE id_pesanan = ?";
 
         try {
