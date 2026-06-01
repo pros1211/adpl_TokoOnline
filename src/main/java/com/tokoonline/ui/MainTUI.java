@@ -145,9 +145,10 @@ public class MainTUI {
                 String merk = scanner.nextLine();
                 System.out.print("Garansi (bln): ");
                 int garansi = Integer.parseInt(scanner.nextLine());
-                System.out.print("Daya (Watt) : ");
+                System.out.print("Daya (Watt) : \n");
+                Double daya=Double.parseDouble(scanner.nextLine());
                 sukses = tambahProdukFacade.tambahElektronik(idPenjual, nama, harga, berat, stok, merk, garansi,
-                        harga);
+                        daya);
 
                 if (sukses) {
                     System.out.println("Produk '" + nama + "' berhasil masuk ke database toko Anda.");
@@ -393,8 +394,10 @@ public class MainTUI {
                     } else {
                         prosesKeranjangBelanja(katalogProduk, pelangganaktif);
                     }
+                    break;
                 case "4":
-                    pesananFacade = new PesananFacade();
+                 
+
                     List<Pesanan> riwayat = pesananFacade.ambilRiwayatPesanan(pelangganaktif);
 
                     if (riwayat.isEmpty()) {
@@ -451,7 +454,7 @@ public class MainTUI {
     }
 
     private void prosesKeranjangBelanja(List<Produk> katalogProduk, Pelanggan pelangganaktif) {
-        pesananFacade = new PesananFacade();
+        
         boolean menuPesanan = true;
         int jumlahItemKeranjang = 0;
 
@@ -526,10 +529,10 @@ public class MainTUI {
                         menuBayarPesanan(pesananSaya);
                         break;
                     case "2":
-                        pesananSaya.kirim();
+                        pesananFacade.kirimPesanan(pesananSaya);
                         break;
                     case "3":
-                        pesananSaya.batal();
+                        pesananFacade.batalkanPesanan(pesananSaya);
                         break;
                     case "0":
                         diMenuPesanan = false;

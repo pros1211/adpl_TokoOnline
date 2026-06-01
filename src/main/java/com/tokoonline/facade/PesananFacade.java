@@ -38,6 +38,7 @@ public class PesananFacade {
             boolean suksesSimpan = pesananRepo.simpanPesanan(pesananBaru);
 
             if (suksesSimpan) {
+                keranjangBuilder.reset(); // RESET KERANJANG
                 return pesananBaru;
             }
         } catch (IllegalStateException e) {

@@ -5,7 +5,7 @@ import com.tokoonline.ui.MainTUI;
 
 public class App {
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+      
         DatabaseConnection singleton = DatabaseConnection.getInstance();
         System.out.println("alamat memori 1: " + singleton.hashCode());
         DatabaseConnection singleton2 = DatabaseConnection.getInstance();

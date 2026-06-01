@@ -38,19 +38,25 @@ public class PesananRepository {
             int idPesananBaru = 0;
             if (rs.next()) {
                 idPesananBaru = rs.getInt(1);
+                pesanan.setIdPesanan(idPesananBaru); // SINKRONISASI ID
             } else {
                 throw new Exception("Gagal mendapatkan ID Pesanan dari database.");
             }
 
             PreparedStatement stmtDetail = conn.prepareStatement(queryDetail);
-
+             String queryUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
+                PreparedStatement stmtStok =  conn.prepareStatement(queryUpdateStok);
             for (ItemPesanan item : pesanan.getDaftaritem()) {
+               
                 stmtDetail.setInt(1, idPesananBaru);
                 stmtDetail.setInt(2, item.getProduk().getIdProduk());
                 stmtDetail.setInt(3, item.getKuantitas());
                 stmtDetail.setDouble(4, item.getSubtotal());
 
                 stmtDetail.executeUpdate();
+                stmtStok.setInt(1, item.getKuantitas());
+                stmtStok.setInt(2, item.getProduk().getIdProduk());
+                stmtStok.executeUpdate();
             }
 
             conn.commit();

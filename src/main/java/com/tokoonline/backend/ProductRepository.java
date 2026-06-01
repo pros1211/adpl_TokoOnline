@@ -70,9 +70,9 @@ public class ProductRepository {
     public List<Produk> getAllProdukByToko(String namaToko) {
         List<Produk> listProduk = new ArrayList<>();
 
-        String query = "SELECT id_produk, id_penjual, jenis, nama, harga, stok FROM produk" +
-                "JOIN penjual ON penjual.id_penjual = produk.id_penjual " +
-                "WHERE penjual.username = ?";
+        String query = "SELECT p.id_produk, p.id_penjual, p.jenis, p.nama, p.harga, p.stok FROM produk p " +
+                "JOIN penjual j ON j.id_penjual = p.id_penjual " +
+                "WHERE j.username = ?";
 
         try {
             Connection conn = DatabaseConnection.getInstance().getConnection();

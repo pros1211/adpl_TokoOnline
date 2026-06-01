@@ -5,18 +5,18 @@ import com.tokoonline.model.Pesanan;
 public class Diproses implements StatePesanan {
     @Override
     public void bayar(Pesanan pesanan) {
-        System.out.println(pesanan.getDetailPesanan() + " sudah dibayar");
+        System.out.println("PESANAN #ID: "+pesanan.getDetailPesanan() + " sudah dibayar");
 
     }
 
     public void proses(Pesanan pesanan) {
-        System.out.println(pesanan.getIdPesanan() + " sedang diproses");
+        System.out.println("PESANAN #ID: "+pesanan.getIdPesanan() + " sedang diproses");
 
     }
 
     public void kirim(Pesanan pesanan) {
-        System.out.println(pesanan.getIdPesanan() + " akan dikirim ke alamat" + pesanan.getAlamatkirim()
-                + " menggunakan ekpedisi " + pesanan.getEkspedisi());
+        System.out.println("PESANAN #ID: "+pesanan.getIdPesanan() + " akan dikirim ke alamat: " + pesanan.getAlamatkirim()
+                + " menggunakan ekpedisi: " + pesanan.getEkspedisi());
         pesanan.setStatus(new Dikirim());
     }
 

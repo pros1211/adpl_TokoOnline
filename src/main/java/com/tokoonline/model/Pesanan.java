@@ -43,10 +43,10 @@ public class Pesanan {
     public String getDetailPesanan() {
         String hasil = "";
         for (ItemPesanan isi : daftaritem) {
-            hasil += isi.produk.getNama();
+            hasil += isi.produk.getNama()+", ";
         }
 
-        return hasil + " " + this.ekspedisi + " " + this.alamatkirim;
+        return "PESANAN #ID "+this.idPesanan+" Barang:"+hasil + "dengan Ekpedisi:" + this.ekspedisi + "dan Alamat Kirim: " + this.alamatkirim;
     }
 
     public void setStatus(StatePesanan newstate) {
@@ -72,6 +72,10 @@ public class Pesanan {
 
     public void batal() {
         this.currentState.batal(this);
+    }
+
+    public void setIdPesanan(int idPesanan) {
+        this.idPesanan = idPesanan;
     }
 
     public int getIdPesanan() {

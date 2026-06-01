@@ -9,7 +9,7 @@ import com.tokoonline.model.Pelanggan;
 import com.tokoonline.model.Pesanan;
 
 public class PesananBuilder {
-    private int id;
+    private int id=1;
     private Pelanggan pembeli;
     private StatePesanan currentState;
     private List<ItemPesanan> daftarItem = new ArrayList<>();
@@ -47,6 +47,14 @@ public class PesananBuilder {
         }
 
         return new Pesanan(this);
+    }
+
+    public void reset() {
+        this.daftarItem = new ArrayList<>();
+        this.totalHarga = 0.0;
+        this.pembeli = null;
+        this.alamatKirim = null;
+        this.ekspedisi = null;
     }
 
     public int getId() {
