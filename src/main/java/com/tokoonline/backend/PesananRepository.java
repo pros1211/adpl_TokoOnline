@@ -14,13 +14,13 @@ import com.tokoonline.model.Pesanan;
 import com.tokoonline.model.Produk;
 
 public class PesananRepository {
-    // method untuk simpan pesanan
+    
     public boolean simpanPesanan(Pesanan pesanan) {
         String queryPesanan = "INSERT INTO pesanan (id_pembeli, alamat_kirim, ekspedisi, total_harga, status_pesanan) VALUES (?, ?, ?, ?, ?)";
         String queryDetail = "INSERT INTO detail_pesanan (id_pesanan, id_produk, kuantitas, subtotal) VALUES (?, ?, ?, ?)";
+        String queryUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
 
         Connection conn = null;
-
         try {
             conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
@@ -30,27 +30,19 @@ public class PesananRepository {
             stmtPesanan.setString(2, pesanan.getAlamatkirim());
             stmtPesanan.setString(3, pesanan.getEkspedisi());
             stmtPesanan.setDouble(4, pesanan.getTotalHarga());
-
-            String namaState = pesanan.getCurrentState().getClass().getSimpleName();
-            stmtPesanan.setString(5, namaState);
-
+            stmtPesanan.setString(5, pesanan.getCurrentState().getClass().getSimpleName());
             stmtPesanan.executeUpdate();
 
             ResultSet rs = stmtPesanan.getGeneratedKeys();
-            int idPesananBaru = 0;
             if (rs.next()) {
-                idPesananBaru = rs.getInt(1);
-                pesanan.setIdPesanan(idPesananBaru);
-            } else {
-                throw new Exception("Gagal mendapatkan ID Pesanan dari database.");
+                pesanan.setIdPesanan(rs.getInt(1));
             }
 
             PreparedStatement stmtDetail = conn.prepareStatement(queryDetail);
-            String queryUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
             PreparedStatement stmtStok = conn.prepareStatement(queryUpdateStok);
             
             for (ItemPesanan item : pesanan.getDaftaritem()) {
-                stmtDetail.setInt(1, idPesananBaru);
+                stmtDetail.setInt(1, pesanan.getIdPesanan());
                 stmtDetail.setInt(2, item.getProduk().getIdProduk());
                 stmtDetail.setInt(3, item.getKuantitas());
                 stmtDetail.setDouble(4, item.getSubtotal());
@@ -63,17 +55,12 @@ public class PesananRepository {
 
             conn.commit();
             return true;
-
         } catch (Exception e) {
-            System.out.println("Gagal menyimpan transaksi: " + e.getMessage());
-            try {
-                if (conn != null) conn.rollback();
-            } catch (Exception ex) {}
+            System.out.println("Gagal simpan pesanan: " + e.getMessage());
+            try { if (conn != null) conn.rollback(); } catch (Exception ex) {}
             return false;
         } finally {
-            try {
-                if (conn != null) conn.setAutoCommit(true);
-            } catch (Exception e) {}
+            try { if (conn != null) conn.setAutoCommit(true); } catch (Exception e) {}
         }
     }
 
@@ -81,8 +68,7 @@ public class PesananRepository {
         List<Pesanan> riwayat = new ArrayList<>();
         String query = "SELECT * FROM pesanan WHERE id_pembeli = ? ORDER BY id_pesanan DESC";
         String queryItems = "SELECT dp.*, p.nama, p.jenis, p.harga, p.berat, p.id_penjual " +
-                           "FROM detail_pesanan dp " +
-                           "JOIN produk p ON dp.id_produk = p.id_produk " +
+                           "FROM detail_pesanan dp JOIN produk p ON dp.id_produk = p.id_produk " +
                            "WHERE dp.id_pesanan = ?";
 
         try {
@@ -91,18 +77,17 @@ public class PesananRepository {
             stmt.setInt(1, pembeli.getId());
             ResultSet rs = stmt.executeQuery();
 
+            // Statement kedua untuk mengambil items agar tidak bentrok dengan Resultset pertama
+            PreparedStatement stmtItems = conn.prepareStatement(queryItems);
+
             while (rs.next()) {
                 int idPesanan = rs.getInt("id_pesanan");
-                String alamat = rs.getString("alamat_kirim");
-                String ekspedisi = rs.getString("ekspedisi");
-                double total = rs.getDouble("total_harga");
-                String statusDb = rs.getString("status_pesanan");
+                Pesanan p = new Pesanan(
+                    idPesanan, pembeli, rs.getString("alamat_kirim"), 
+                    rs.getString("ekspedisi"), rs.getDouble("total_harga"), 
+                    mapStatusToState(rs.getString("status_pesanan"))
+                );
 
-                com.tokoonline.State.StatePesanan stateObj = mapStatusToState(statusDb);
-                Pesanan p = new Pesanan(idPesanan, pembeli, alamat, ekspedisi, total, stateObj);
-
-                // Load items for this order
-                PreparedStatement stmtItems = conn.prepareStatement(queryItems);
                 stmtItems.setInt(1, idPesanan);
                 ResultSet rsItems = stmtItems.executeQuery();
                 while (rsItems.next()) {
@@ -120,6 +105,7 @@ public class PesananRepository {
             }
         } catch (Exception e) {
             System.out.println("Gagal mengambil riwayat: " + e.getMessage());
+            e.printStackTrace(); // Debugging detail
         }
         return riwayat;
     }
@@ -134,40 +120,34 @@ public class PesananRepository {
             conn.setAutoCommit(false);
 
             String namaState = pesanan.getCurrentState().getClass().getSimpleName();
-
-            // 1. Update status
             PreparedStatement stmtStatus = conn.prepareStatement(queryStatus);
             stmtStatus.setString(1, namaState);
             stmtStatus.setInt(2, pesanan.getIdPesanan());
             stmtStatus.executeUpdate();
 
-            // 2. Restore stock jika statenya dibatalkan
-            if (namaState.equals("Dibatalkan")) {
+            if (namaState.equals("Dibatalkan") && !pesanan.getDaftaritem().isEmpty()) {
                 PreparedStatement stmtRestore = conn.prepareStatement(queryRestoreStok);
                 for (ItemPesanan item : pesanan.getDaftaritem()) {
                     stmtRestore.setInt(1, item.getKuantitas());
                     stmtRestore.setInt(2, item.getProduk().getIdProduk());
                     stmtRestore.executeUpdate();
                 }
-                System.out.println("Stok produk berhasil dikembalikan.");
+                System.out.println("Sistem: Stok produk telah dikembalikan.");
             }
 
             conn.commit();
             return true;
         } catch (Exception e) {
             System.out.println("Gagal update status: " + e.getMessage());
-            try {
-                if (conn != null) conn.rollback();
-            } catch (Exception ex) {}
+            try { if (conn != null) conn.rollback(); } catch (Exception ex) {}
             return false;
         } finally {
-            try {
-                if (conn != null) conn.setAutoCommit(true);
-            } catch (Exception e) {}
+            try { if (conn != null) conn.setAutoCommit(true); } catch (Exception e) {}
         }
     }
 
     private com.tokoonline.State.StatePesanan mapStatusToState(String status) {
+        if (status == null) return new com.tokoonline.State.MenungguPembayaran();
         switch (status) {
             case "Diproses": return new com.tokoonline.State.Diproses();
             case "Dikirim": return new com.tokoonline.State.Dikirim();
