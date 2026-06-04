@@ -11,102 +11,78 @@ import com.tokoonline.factory.ProductFactory;
 import com.tokoonline.model.Produk;
 
 public class ProductRepository {
-    // method untuk simpan produk yang ditambahkan penjual
     public boolean simpanProduk(Produk produk) {
-        // query insert data produk
-        String query = "INSERT INTO produk (id_penjual, jenis, nama, harga, stok) VALUES (?, ?, ?, ?, ?)";
-
+        //query insert data produk ditambahkan berat
+        String query = "INSERT INTO produk (id_penjual, jenis, nama, harga, berat, stok) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             Connection conn = DatabaseConnection.getInstance().getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
-
             stmt.setInt(1, produk.getIdPenjual());
             stmt.setString(2, produk.getJenis());
             stmt.setString(3, produk.getNama());
             stmt.setDouble(4, produk.getHarga());
-            stmt.setInt(5, produk.getStok());
-
-            int numOfRowUpdated = stmt.executeUpdate();
+            stmt.setDouble(5, produk.getBerat());
+            stmt.setInt(6, produk.getStok());
+           int numOfRowUpdated = stmt.executeUpdate();
             // return true jika row terupdate
             return numOfRowUpdated > 0;
-
         } catch (Exception e) {
-            System.out.println("Gagal menyimpan produk ke database: " + e.getMessage());
+            System.out.println("Gagal simpan produk: " + e.getMessage());
+            return false;
         }
-
-        return false;
     }
-
-    // method untuk menampilkan katalog produk tersedia
+// method untuk menampilkan katalog produk tersedia
     public List<Produk> getAllProduk() {
         List<Produk> listProduk = new ArrayList<>();
-        // query untuk mendapatkan data produk
-        String query = "SELECT id_produk, id_penjual, jenis, nama, harga, stok FROM produk";
-
+        // query untuk mendapatkan data produk (mengambil semua karena di table db nya menambahkan berat)
+        String query = "SELECT * FROM produk";
         try {
             Connection conn = DatabaseConnection.getInstance().getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
-                int idProduk = rs.getInt("id_produk");
-                int idPenjual = rs.getInt("id_penjual");
-                String jenis = rs.getString("jenis");
-                String nama = rs.getString("nama");
-                double harga = rs.getDouble("harga");
-                int stok = rs.getInt("stok");
-
-                double beratDefault = 1.0;
-                // buat produk untuk ditambahkan ke arraylist
-                Produk produk = ProductFactory.buatProduk(jenis, idPenjual, nama, harga, beratDefault, stok);
-
-                if (produk != null) {
-                    produk.setIdProduk(idProduk);
-                    listProduk.add(produk);
+                Produk p = ProductFactory.buatProduk(
+                    rs.getString("jenis"), rs.getInt("id_penjual"),
+                    rs.getString("nama"), rs.getDouble("harga"),
+                    rs.getDouble("berat"), rs.getInt("stok")
+                );
+                if (p != null) {
+                    p.setIdProduk(rs.getInt("id_produk"));
+                    listProduk.add(p);
                 }
             }
         } catch (Exception e) {
-            System.out.println("Gagal mengambil data produk dari database: " + e.getMessage());
+            System.out.println("Gagal ambil produk: " + e.getMessage());
         }
         // return array list produk tersedia
         return listProduk;
     }
-
-    // method untuk mendapatkan katalog barang dari sebuah toko
+// method untuk mendapatkan katalog barang dari sebuah toko
     public List<Produk> getAllProdukByToko(String namaToko) {
         List<Produk> listProduk = new ArrayList<>();
         // query untuk mendapatkan produk dengan inner join berdasarkan id penjual dan
         // username
-        String query = "SELECT p.id_produk, p.id_penjual, p.jenis, p.nama, p.harga, p.stok FROM produk p " +
-                "JOIN penjual j ON j.id_penjual = p.id_penjual " +
-                "WHERE j.username = ?";
-
+        String query = "SELECT p.* FROM produk p JOIN penjual j ON j.id_penjual = p.id_penjual WHERE j.username = ?";
         try {
             Connection conn = DatabaseConnection.getInstance().getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, namaToko);
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
-                int idProduk = rs.getInt("id_produk");
-                int idPenjual = rs.getInt("id_penjual");
-                String jenis = rs.getString("jenis");
-                String nama = rs.getString("nama");
-                double harga = rs.getDouble("harga");
-                int stok = rs.getInt("stok");
-
-                double beratDefault = 1.0;
-                Produk produk = ProductFactory.buatProduk(jenis, idPenjual, nama, harga, beratDefault, stok);
-
-                if (produk != null) {
-                    produk.setIdProduk(idProduk);
-                    listProduk.add(produk);
+                Produk p = ProductFactory.buatProduk(
+                    rs.getString("jenis"), rs.getInt("id_penjual"),
+                    rs.getString("nama"), rs.getDouble("harga"),
+                    rs.getDouble("berat"), rs.getInt("stok")
+                );
+                if (p != null) {
+                    p.setIdProduk(rs.getInt("id_produk"));
+                    listProduk.add(p);
                 }
             }
         } catch (Exception e) {
-            System.out.println("Gagal mengambil data produk dari database: " + e.getMessage());
+            System.out.println("Gagal ambil produk toko: " + e.getMessage());
         }
-        // kembalikan katalog produk
+         // kembalikan katalog produk
         return listProduk;
     }
 }
