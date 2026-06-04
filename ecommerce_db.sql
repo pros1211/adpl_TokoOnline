@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS penjual;
 CREATE TABLE penjual (
     id_penjual INT(11) AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE produk (
@@ -18,9 +18,9 @@ CREATE TABLE produk (
     id_penjual INT,
     jenis VARCHAR(30),
     nama VARCHAR(100),
+    berat DOUBLE,
     harga DOUBLE,
     stok INT,
-    PRIMARY KEY (id_produk),
     FOREIGN KEY (id_penjual) REFERENCES penjual(id_penjual) ON DELETE CASCADE
 );
 
