@@ -6,7 +6,7 @@ import java.util.List;
 public class Pelanggan extends Pengguna {
     private String noHp;
     private String alamat;
-    List<Pesanan> historyPesanan;
+    private List<Pesanan> historyPesanan;
 
     public Pelanggan(int idPelanggan, String username, String password) {
         super(idPelanggan, username, password);

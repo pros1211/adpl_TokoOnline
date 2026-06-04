@@ -1,9 +1,9 @@
 package com.tokoonline.model;
 
 public class ItemPesanan {
-    Produk produk;
-    int kuantitas;
-    Double subtotal;
+    private Produk produk;
+    private int kuantitas;
+    private Double subtotal;
 
     public ItemPesanan(Produk produk, int kuantitas) {
         this.produk = produk;
