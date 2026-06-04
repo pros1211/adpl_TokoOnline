@@ -9,14 +9,14 @@ import com.tokoonline.Strategi.StrategiPembayaran;
 import com.tokoonline.builder.PesananBuilder;
 
 public class Pesanan {
-    int idPesanan;
-    StatePesanan currentState;
-    Pelanggan pembeli;
-    List<ItemPesanan> daftaritem;
-    String alamatkirim;
-    String ekspedisi;
-    StrategiPembayaran metodePembayaran;
-    Double totalHarga;
+    private int idPesanan;
+    private StatePesanan currentState;
+    private Pelanggan pembeli;
+    private List<ItemPesanan> daftaritem;
+    private String alamatkirim;
+    private String ekspedisi;
+    private StrategiPembayaran metodePembayaran;
+    private Double totalHarga;
 
     public Pesanan(PesananBuilder builder) {
         this.idPesanan = builder.getId();
