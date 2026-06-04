@@ -43,7 +43,7 @@ public class Pesanan {
     public String getDetailPesanan() {
         String hasil = "";
         for (ItemPesanan isi : daftaritem) {
-            hasil += isi.produk.getNama()+", ";
+            hasil += isi.getProduk().getNama()+", ";
         }
 
         return "PESANAN #ID "+this.idPesanan+" Barang:"+hasil + "dengan Ekpedisi:" + this.ekspedisi + "dan Alamat Kirim: " + this.alamatkirim;
@@ -106,7 +106,7 @@ public class Pesanan {
         return metodePembayaran;
     }
 
-    public double getTotalHarga() {
+    public Double getTotalHarga() {
         return totalHarga;
     }
 
