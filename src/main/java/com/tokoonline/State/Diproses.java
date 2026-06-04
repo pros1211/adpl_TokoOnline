@@ -6,13 +6,13 @@ public class Diproses implements StatePesanan {
     @Override
     public void bayar(Pesanan pesanan) {
         // jika statenya sudah dibayar maka kembalikan konfirmasi sudah dibayar
-        System.out.println("PESANAN #ID: " + pesanan.getDetailPesanan() + " sudah dibayar");
+        System.out.println( pesanan.getDetailPesanan() + "[SUDAH DIPROSES]");
 
     }
 
     public void proses(Pesanan pesanan) {
         // kembalikan konfirmasi proses
-        System.out.println("PESANAN #ID: " + pesanan.getIdPesanan() + " sedang diproses");
+        System.out.println(pesanan.getIdPesanan() + "[SEDANG DIPROSES]");
 
     }
 

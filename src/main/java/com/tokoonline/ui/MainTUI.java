@@ -155,7 +155,7 @@ public class MainTUI {
                 String merk = scanner.nextLine();
                 System.out.print("Garansi (bln): ");
                 int garansi = Integer.parseInt(scanner.nextLine());
-                System.out.print("Daya (Watt) : \n");
+                System.out.print("Daya (Watt) : ");
                 Double daya = Double.parseDouble(scanner.nextLine());
                 sukses = tambahProdukFacade.tambahElektronik(idPenjual, nama, harga, berat, stok, merk, garansi,
                         daya);

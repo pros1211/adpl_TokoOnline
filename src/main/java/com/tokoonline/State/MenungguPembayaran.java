@@ -6,7 +6,7 @@ public class MenungguPembayaran implements StatePesanan {
     @Override
     public void bayar(Pesanan pesanan) {
         // jika dibayar maka kembalikan pesan konfirmasi
-        System.out.println(pesanan.getDetailPesanan() + " berhasil dibayar");
+        System.out.println(pesanan.getDetailPesanan() + "[BERHASIL DIBAYAR]");
         pesanan.getMetodePembayaran().prosesPembayaran(pesanan.getTotalHarga());
 
         System.out.println("Pesanan ID #" + pesanan.getIdPesanan() + " berhasil dilunasi.");
@@ -16,14 +16,14 @@ public class MenungguPembayaran implements StatePesanan {
 
     public void proses(Pesanan pesanan) {
         // tidak bisa diproses sehingga menunggu pembayaran selesai
-        System.out.println(pesanan.getDetailPesanan() + " menunggu pembayaran");
+        System.out.println(pesanan.getDetailPesanan() + "[MENUNGGU PEMBAYARAN]");
 
     }
 
     public void kirim(Pesanan pesanan) {
 
         // tidak bisa dikirim sehingga menunggu pembayaran selesai
-        System.out.println(pesanan.getDetailPesanan() + " belum dibayar");
+        System.out.println(pesanan.getDetailPesanan() + "[BELUM DIBAYAR]");
 
     }
 
