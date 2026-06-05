@@ -60,6 +60,36 @@ CREATE TABLE detail_pesanan (
         FOREIGN KEY (id_produk) REFERENCES produk(id_produk)
 );
 
+INSERT INTO penjual (username, password) VALUES 
+('TokoElektronikJaya', 'pass123'),
+('KulinerNusantara', 'pass123'),
+('FashionStyle', 'pass123'),
+('BeautyGlow', 'pass123'),
+('MebelIndah', 'pass123');
+
+-- B. Data Pembeli
+INSERT INTO pembeli (alamat, noHp, username, password) VALUES 
+('Jl. Kopo Bihbul No.53, Bandung', '08995666924', 'kendrick', 'ken123'),
+('Jl. Merdeka No.1, Jakarta', '081234567890', 'budi_santoso', 'budi123');
+
+INSERT INTO produk (id_penjual, jenis, nama, berat, harga, stok) VALUES 
+(1, 'Elektronik', 'Laptop ASUS ProArt 14', 1.5, 18000000, 20),
+(1, 'Elektronik', 'HP Pavilion 13', 1.3, 15000000, 10),
+(1, 'Elektronik', 'Sony WH-1000XM5 Wireless Headphones', 0.5, 5500000, 15),
+
+(2, 'Makanan', 'Indomie Mi Goreng (1 Dus)', 2.5, 115000, 50),
+(2, 'Makanan', 'Kopi Kenangan Mantan 1 Liter', 1.0, 85000, 30),
+
+(3, 'Pakaian', 'Uniqlo T-Shirt Pria Lengan Pendek', 0.2, 199000, 100),
+(3, 'Pakaian', 'Erigo Coach Jacket Black', 0.6, 350000, 45),
+
+(4, 'Kecantikan', 'COSRX Low pH Good Morning Gel Cleanser', 0.2, 145000, 40),
+(4, 'Kecantikan', 'Skintific 5X Ceramide Barrier Moisture Gel', 0.1, 135000, 60),
+
+(5, 'Perabotan', 'IKEA LINNMON Meja Kerja Putih', 12.0, 750000, 5),
+(5, 'Perabotan', 'Kursi Kantor Ergonomis Punggung Jaring', 8.5, 650000, 12);
+
+
 -- untuk reset database
 -- SET FOREIGN_KEY_CHECKS = 0;
 
