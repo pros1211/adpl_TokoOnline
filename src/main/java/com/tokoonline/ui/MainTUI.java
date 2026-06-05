@@ -528,7 +528,8 @@ public class MainTUI {
         System.out.println("Sedang memproses pesanan Anda...");
         Pesanan pesananSaya = pesananFacade.buatPesanan(pelangganaktif, alamat, ekspedisi);
         if (pesananSaya != null) {
-            System.out.println("\n Pesanan Berhasil Dibuat! Total Tagihan: Rp" + pesananSaya.getTotalHarga());
+            String totalRupiah = String.format(new Locale("id", "ID"), "%,.0f", pesananSaya.getTotalHarga());
+            System.out.println("\n Pesanan Berhasil Dibuat! Total Tagihan: Rp" + totalRupiah);
 
             boolean diMenuPesanan = true;
             while (diMenuPesanan) {

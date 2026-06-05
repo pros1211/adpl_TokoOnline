@@ -41,12 +41,31 @@ public class Pesanan {
     }
 
     public String getDetailPesanan() {
-        String hasil = "";
-        for (ItemPesanan isi : daftaritem) {
-            hasil += isi.getProduk().getNama()+" ";
+        StringBuilder detailBarang = new StringBuilder();
+        if (daftaritem.size() > 1) {
+            detailBarang.append("\n");
+            for (int i = 0; i < daftaritem.size(); i++) {
+                ItemPesanan item = daftaritem.get(i);
+                detailBarang.append("  ").append(i + 1).append(". ")
+                        .append(item.getProduk().getNama())
+                        .append(" (Qty: ").append(item.getKuantitas()).append(")");
+
+                if (i < daftaritem.size() - 1) {
+                    detailBarang.append("\n");
+                }
+            }
+        } else if (daftaritem.size() == 1) {
+            ItemPesanan item = daftaritem.get(0);
+            detailBarang.append(item.getProduk().getNama())
+                    .append(" (Qty: ").append(item.getKuantitas()).append(")");
+        } else {
+            detailBarang.append("-");
         }
 
-        return "PESANAN #ID "+this.idPesanan+"\n"+"Barang: "+hasil+"\n"+"dengan Ekpedisi: " + this.ekspedisi+"\n"+"Alamat Kirim: " + this.alamatkirim+"\n";
+        return "PESANAN #ID " + this.idPesanan + "\n" +
+                "Barang: " + detailBarang.toString() + "\n" +
+                "Ekspedisi: " + this.ekspedisi + "\n" +
+                "Alamat Kirim: " + this.alamatkirim + "\n";
     }
 
     public void setStatus(StatePesanan newstate) {
